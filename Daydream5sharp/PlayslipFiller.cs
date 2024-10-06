@@ -1,8 +1,12 @@
-﻿using System;
+﻿using PdfSharp;
+using PdfSharp.Drawing;
+using PdfSharp.Pdf;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Text;
 using System.Threading.Tasks;
 using ZXing.Common;
@@ -40,11 +44,17 @@ namespace Daydream5sharp
 
             pathRoot += "\\";
 
+            PdfDocument document = new PdfDocument();
+
             for (int i = 0; i < bitmaps.Length; i++)
             {
+
                 bitmaps[i] = paperPlayslipMaker();
-                saveImage(bitmaps[i], pathRoot);
+                bitmaps[i].RotateFlip(RotateFlipType.Rotate270FlipNone);
+                document  = saveImage(bitmaps[i], pathRoot, document);
             }
+
+            document.Save(pathRoot + dateTime.ToString("O").Replace(":", "_") + ".pdf");
         }
 
         protected Bitmap paperPlayslipMaker()
@@ -182,44 +192,44 @@ namespace Daydream5sharp
                     switch (x)
                     {
                         case 0:
-                            xIndex = 117;
-                            yIndex = 43;
+                            xIndex = 116;
+                            yIndex = 45;
                             break;
                         case 1:
-                            xIndex = 238;
-                            yIndex = 44;
+                            xIndex = 236;
+                            yIndex = 45;
                             break;
                         case 2:
-                            xIndex = 358;
-                            yIndex = 43;
+                            xIndex = 355;
+                            yIndex = 45;
                             break;
                         case 3:
-                            xIndex = 478;
-                            yIndex = 43;
+                            xIndex = 475;
+                            yIndex = 45;
                             break;
                         case 4:
-                            xIndex = 598;
-                            yIndex = 43;
+                            xIndex = 595;
+                            yIndex = 45;
                             break;
                         case 5:
-                            xIndex = 117;
-                            yIndex = 181;
+                            xIndex = 116;
+                            yIndex = 183;
                             break;
                         case 6:
-                            xIndex = 238;
-                            yIndex = 181;
+                            xIndex = 236;
+                            yIndex = 183;
                             break;
                         case 7:
-                            xIndex = 358;
-                            yIndex = 181;
+                            xIndex = 356;
+                            yIndex = 183;
                             break;
                         case 8:
-                            xIndex = 478;
-                            yIndex = 181;
+                            xIndex = 476;
+                            yIndex = 183;
                             break;
                         case 9:
-                            xIndex = 598;
-                            yIndex = 181;
+                            xIndex = 596;
+                            yIndex = 183;
                             break;
 
                     }
@@ -393,7 +403,7 @@ namespace Daydream5sharp
 
 
 
-        private void saveImage(Bitmap bitmap, string pathRoot)
+        private PdfDocument saveImage(Bitmap bitmap, string pathRoot, PdfDocument document)
         {
 
             // Generate a unique file name
@@ -402,13 +412,30 @@ namespace Daydream5sharp
 
             try
             {
+
+                PdfPage page = document.AddPage();
+
+                page.Width = XUnit.FromInch(3.25f);
+                page.Height = XUnit.FromInch(8.5f);
+
+                XGraphics gfx = XGraphics.FromPdfPage(page);
+
                 bitmap.Save(pathRoot, ImageFormat.Jpeg);
+
+                XImage image = XImage.FromFile(pathRoot);
+
+                gfx.DrawImage(image, 0, 0);
+
+                
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.Message);
                 Console.ReadLine();
             }
+
+            return document;
+
         }
     }
 }
